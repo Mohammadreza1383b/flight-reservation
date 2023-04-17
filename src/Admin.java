@@ -214,7 +214,7 @@ public class Admin {
 
     public int searchFlight (String flightid){
         for (int i = 0; i < flight.length; i++) {
-            if (flight[i].getFlightid().equals(flightid)){
+            if (flight[i] !=null && flight[i].getFlightid().equals(flightid)){
                 return i;
             }
         }
