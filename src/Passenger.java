@@ -51,6 +51,8 @@ public class Passenger {
                 flightSearch();
             } else if (command.equals("3")) {
                 bookingTicket();
+            } else if (command.equals("4")) {
+                cancelation();
             } else if (command.equals("5")) {
                 booked();
             } else if (command.equals("6")) {
@@ -228,21 +230,43 @@ public class Passenger {
     //this method is for booking ticket
     public void bookingTicket(){
         Main.admin.flightPrint();
-        System.out.println("please enter your flightId that you want to book it :");
         Scanner input =  new Scanner(System.in);
-        String flightId = input.next();
         int index;
         String command ;
+        if (wallet == 0 ){
+            System.out.println("your charge amount is 0 if you want to add charge inter b and for continue enter any command");
+            command = input.next();
+            if (command.equalsIgnoreCase("b")){
+                addCharge();
+            }
+        }
+        Main.admin.flightPrint();
+        System.out.printf("please enter your flightId that you want to book it(your charge amount is %d :",wallet);
+        String flightId = input.next();
         for (int i = 0; i < flightBooked.length; i++) {
             if (flightBooked[i] == null){
                 index = Main.admin.searchFlight(flightId);
                 if (index != -1){
-                    flightBooked[i] = Admin.flight[index];
-                    ticketId[i] = flightBooked[i].getFlightid() + flightBooked[i].getSeat() +flightBooked[i].getSeat() + flightBooked[i].getTime();
-                    Admin.flight[index].setSeat(Admin.flight[index].getSeat()-1);
-                    System.out.println("the flight booked successfully and your ticketId is " + ticketId[i]);
-                    System.out.println("please enter any command to go back");
-                    break;
+                    if (wallet >= Admin.flight[index].getPrice()){
+                        if (Admin.flight[index].getSeat()!=0){
+                            flightBooked[i] = Admin.flight[index];
+                            ticketId[i] = flightBooked[i].getFlightid() + flightBooked[i].getSeat() +flightBooked[i].getSeat() + flightBooked[i].getTime();
+                            Admin.flight[index].setSeat(Admin.flight[index].getSeat()-1);
+                            wallet = wallet - Admin.flight[index].getPrice();
+                            System.out.println("the flight booked successfully and your ticketId is " + ticketId[i]);
+                            System.out.println("please enter any command to go back");
+                            break;
+                        }else {
+                            System.out.println("this flight is full please enter any command to go back");
+                            break;
+                        }
+
+                    }else {
+                        System.out.println("your inventory is  insufficient please enter any command to go back and charge your wallet");
+                        break;
+                    }
+
+
                 }else {
                     System.out.println("there isn't such flight please enter r to try again or any command to go back:");
                     break;
@@ -253,6 +277,51 @@ public class Passenger {
         if (command.equalsIgnoreCase("r")){
             bookingTicket();
         }
+    }
+    //this method is for canceling the ticket
+    public void cancelation (){
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+        Scanner input = new Scanner(System.in);
+        String ticket , command;
+        boolean checkIsThereBooked = false;
+        //indexB for bookedflight and indexF for static flight in Admin
+        int indexB , indexF;
+        System.out.printf("|%-15s|%-15s|%-15s|%-15s|%-15s|%-15s|%-15s\n","FlightId","Orgin","Destination","Date","Time","Price","Seat|");
+        System.out.println("........................................................................");
+        for (int i = 0; i < flightBooked.length; i++) {
+            if (flightBooked[i] != null ){
+                System.out.printf("|%-15s|%-15s|%-15s|%-15s|%-15s|%-15d|%-15d\n",flightBooked[i].getFlightid(),flightBooked[i].getOrigin(),flightBooked[i].getDestination(),flightBooked[i].getDate(),flightBooked[i].getTime(),flightBooked[i].getPrice(),flightBooked[i].getSeat());
+                System.out.println("ticketId is : " + ticketId[i]);
+                System.out.println("........................................................................");
+                checkIsThereBooked = true;
+            }
+        }
+        if (checkIsThereBooked == true){
+            System.out.println("which of the flights do tou want to cancel?(please enter ticketId )");
+            ticket = input.next();
+            indexB = searchticket(ticket);
+            indexF = Main.admin.searchFlight(flightBooked[indexB].getFlightid());
+            if (indexB != -1){
+                if (indexF != -1){
+                    Admin.flight[indexF].setSeat(Admin.flight[indexF].getSeat()+1);
+                }
+                wallet = flightBooked[indexB].getPrice()+wallet;
+                flightBooked[indexB] = null;
+                ticketId[indexB] =null;
+                System.out.println("ticket canceled successfully enter any command to go back ");
+                command =input.next();
+            }else {
+                System.out.println("there is not such ticketId enter any command to go back");
+                command = input.next();
+            }
+
+        }else {
+            System.out.println("there is not any ticket please enter any command to go back");
+            command = input.next();
+        }
+
+
     }
     //this method is for show flights that passenger booked
     public void booked(){
@@ -286,6 +355,15 @@ public class Passenger {
         System.out.println("please enter any command to back");
         input.next();
 
+    }
+
+    public int searchticket(String ticket){
+        for (int i = 0; i < ticketId.length; i++) {
+            if (ticketId[i] != null && ticketId[i].equals(ticket)){
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
