@@ -141,6 +141,18 @@ public class Admin {
         flightPrint();
         System.out.println("please enter the flightId for remove the flight");
         remove = input.next();
+        //back the price of this flight to passenger that buy it
+        for (int i = 0; i < Main.passenger.length; i++) {
+            if (Main.passenger[i] != null){
+                for (int j = 0; j < Main.passenger[i].flightBooked.length; j++) {
+                    if (Main.passenger[i].flightBooked[j] != null && Main.passenger[i].flightBooked[j].getFlightid().equals(remove)){
+                        Main.passenger[i].setWallet(Main.passenger[i].getWallet()+Main.passenger[i].flightBooked[j].getPrice());
+                        Main.passenger[i].flightBooked[j] = null;
+                    }
+                }
+            }
+        }
+        //for remove the flight
         for (int i = 0; i < flight.length; i++) {
             if (flight[i] != null && flight[i].getFlightid().equals(remove) ){
                 flight[i] =null;
@@ -155,8 +167,10 @@ public class Admin {
                 checkremove =true;
                 break;
             }
+
         }
 
+        //check if flight removed or not print a massage
         if (checkremove == false){
             System.out.println("there is not such flightId enter any command to go back..");
             command = input.next();

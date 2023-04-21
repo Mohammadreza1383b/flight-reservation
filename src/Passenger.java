@@ -76,7 +76,7 @@ public class Passenger {
         command = input.nextLine();
 
     }
-
+    //this method is for searching flights by parameters
     public void flightSearch(){
         System.out.print("\033[H\033[2J");
         System.out.flush();
